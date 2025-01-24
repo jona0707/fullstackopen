@@ -1,20 +1,26 @@
 import { Field, Form, Formik } from "formik";
 import { FormularioSeleccionProps } from "../types/FormularioSeleccionTypes";
+import { useState } from "react";
 
 export const FormularioSeleccion = ({
   setSelection,
 }: FormularioSeleccionProps) => {
+  const [initialValues, setInitialValues] = useState({ selection: "" });
+  const handleSubmit = (sel: { selection: string }) => setSelection(sel.selection);
+
   return (
-    <Formik
-      initialValues={{ selection: "" }}
-      onSubmit={(sel) => setSelection(sel.selection)}
-    >
+    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
       {({}) => (
         <Form>
           <div className="selection">
             <label htmlFor="selection">Selecciona un formulario:</label>
             <div>
-              <Field id="selection" name="selection" type="radio" value="Youtube"/>{" "}
+              <Field
+                id="selection"
+                name="selection"
+                type="radio"
+                value="Youtube"
+              />{" "}
               Youtube
             </div>
             <div>
@@ -22,7 +28,12 @@ export const FormularioSeleccion = ({
               freeCodeCamp
             </div>
             <div>
-              <Field id="selection" name="selection" type="radio" value="formik" />{" "}
+              <Field
+                id="selection"
+                name="selection"
+                type="radio"
+                value="formik"
+              />{" "}
               formik
             </div>
           </div>

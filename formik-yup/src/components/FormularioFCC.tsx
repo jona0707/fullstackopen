@@ -1,26 +1,35 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import { validationSchemaFCC } from "../utils/validationSchemaFCC";
 import { FormularioFCCTypes } from "../types/FormularioFCCTypes";
+import { useState } from "react";
 
 export const FormularioFCC = () => {
   // Sin uso de formularioEnviado (estado local) sino con la prop setSubmitting
   //   const [formularioEnviado, setFormularioEnviado] = useState(false);
+
+  const [initialValues, setinitialValues] = useState({
+    fullname: "",
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = (
+    valores: FormularioFCCTypes,
+    { resetForm, setSubmitting }: FormikHelpers<FormularioFCCTypes>
+  ) => {
+    setTimeout(() => {
+      console.log(valores);
+      alert(JSON.stringify(valores, null, 2));
+      setSubmitting(false);
+    }, 40);
+    resetForm();
+  };
+
   return (
     <Formik
-      initialValues={{
-        fullname: "",
-        email: "",
-        password: "",
-      }}
+      initialValues={initialValues}
       validationSchema={validationSchemaFCC}
-      onSubmit={(valores: FormularioFCCTypes, { resetForm, setSubmitting }) => {
-        setTimeout(() => {
-          console.log(valores);
-          alert(JSON.stringify(valores, null, 2));
-          setSubmitting(false);
-        }, 40);
-        resetForm();
-      }}
+      onSubmit={handleSubmit}
     >
       {({ isSubmitting }) => (
         <Form className="formulario">

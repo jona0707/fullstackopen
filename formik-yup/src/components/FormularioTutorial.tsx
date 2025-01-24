@@ -1,28 +1,37 @@
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikHelpers } from "formik";
 import { validationSchemaTutorial } from "../utils/validationSchemaTutorial";
 import { MyTextInput } from "./tutorial-components/MyTextInput";
 import { MySelect } from "./tutorial-components/MySelect";
 import { MyCheckbox } from "./tutorial-components/MyCheckbox";
+import { useState } from "react";
+import { FormularioTutorialTypes } from "../types/FormularioTutorialTypes";
 
 export const FormularioTutorial = () => {
+  const [initialValues, setInitialValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    acceptedTerms: false,
+    jobType: "",
+  });
+
+  const handleSubmit = (
+    values: FormularioTutorialTypes,
+    { setSubmitting }: FormikHelpers<FormularioTutorialTypes>
+  ) => {
+    setTimeout(() => {
+      alert(JSON.stringify(values, null, 2));
+      setSubmitting(false);
+    }, 400);
+  };
+
   return (
     <>
       <h3>Subscribe!</h3>
       <Formik
-        initialValues={{
-          firstName: "",
-          lastName: "",
-          email: "",
-          acceptedTerms: false,
-          jobType: "",
-        }}
+        initialValues={initialValues}
         validationSchema={validationSchemaTutorial}
-        onSubmit={(values, { setSubmitting }) => {
-          setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-          }, 400);
-        }}
+        onSubmit={handleSubmit}
       >
         <Form className="formulario">
           <MyTextInput

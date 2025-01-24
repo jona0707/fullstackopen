@@ -1,29 +1,33 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import { validationSchema } from "../utils/validationSchema";
 import { useState } from "react";
 import { FormularioTypes } from "../types/FormularioTypes";
 
 export const Formulario = () => {
   const [formularioEnviado, setFormularioEnviado] = useState(false);
-
+  const [initialValues, setInitialValues] = useState({
+    nombre: "",
+    correo: "",
+    pais: "",
+    sexo: "",
+    mensaje: "",
+  });
+  const handleSubmit = (
+    valores: FormularioTypes,
+    { resetForm }: FormikHelpers<FormularioTypes>
+  ) => {
+    resetForm();
+    console.log(valores);
+    setFormularioEnviado(true);
+    setTimeout(() => {
+      setFormularioEnviado(false);
+    }, 5000);
+  };
   return (
     <Formik
-      initialValues={{
-        nombre: "",
-        correo: "",
-        pais: "",
-        sexo: "",
-        mensaje: "",
-      }}
+      initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={(valores: FormularioTypes, { resetForm }) => {
-        resetForm();
-        console.log(valores);
-        setFormularioEnviado(true);
-        setTimeout(() => {
-          setFormularioEnviado(false);
-        }, 5000);
-      }}
+      onSubmit={handleSubmit}
     >
       {() => (
         <Form className="formulario">
