@@ -1,32 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PersonType } from "./types/PersonType";
 import { Filter } from "./components/Filter";
 import { AddForm } from "./components/AddForm";
 import { Persons } from "./components/Persons";
+import notesServices from "./services/notesServices";
 import "./index.css";
 
-const agenda: PersonType[] = [
-  { name: "Arto Hellas", number: "040-123456", id: 1 },
-  { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-  { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-  { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-];
-
 const App = () => {
-  const [persons, setPersons] = useState(agenda as PersonType[]);
+  const [persons, setPersons] = useState([] as PersonType[]);
   const [filter, setFilter] = useState("" as string);
+
+  useEffect(() => {
+    notesServices.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
+    });
+  }, []);
+
+  const updatePersonNumber = (id: number, number: string, updatedPersonNumber: PersonType) => {
+    notesServices.update(id, {...updatedPersonNumber, number}).then((updatedPerson) => {
+      setPersons(
+        persons.map((person) => (person.id !== id ? person : updatedPerson))
+      );
+    });
+  };
 
   const addPerson = (name: string, number: string) => {
     if (persons.some((person) => person.name === name)) {
-      alert(`${name} is already added to phonebook!!`);
+      if (
+        window.confirm(
+          `${name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const personToUpdate = persons.find((person) => person.name === name);
+        if (personToUpdate) {
+          updatePersonNumber(personToUpdate?.id, number, personToUpdate);
+        }
+      }
+
       return;
     }
     const personObject = {
       name,
       number,
-      id: persons.length + 1,
     };
-    setPersons(persons.concat(personObject));
+
+    notesServices.create(personObject).then((returnedPerson) => {
+      setPersons(persons.concat(returnedPerson));
+      // setPersons([...persons, personObject]);
+    });
+  };
+
+  const deletePerson = (id: number) => {
+    if (window.confirm("Do you really want to leave?")) {
+      notesServices.deletePerson(id).then(() => {
+        setPersons(persons.filter((person) => person.id !== id));
+      });
+    }
   };
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +67,7 @@ const App = () => {
         )
       );
     } else {
-      setPersons(agenda);
+      setPersons(persons);
     }
   };
 
@@ -49,7 +78,7 @@ const App = () => {
       <h2>add new</h2>
       <AddForm addPerson={addPerson} />
       <h2>Numbers</h2>
-      <Persons persons={persons} />
+      <Persons persons={persons} handleDelete={deletePerson} />
     </div>
   );
 };
