@@ -5,10 +5,13 @@ import { AddForm } from "./components/AddForm";
 import { Persons } from "./components/Persons";
 import notesServices from "./services/notesServices";
 import "./index.css";
+import { Notification } from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([] as PersonType[]);
   const [filter, setFilter] = useState("" as string);
+  const [resultMessage, setResultMessage] = useState(null as string | null);
+  const [type, setType] = useState(null as string | null);
 
   useEffect(() => {
     notesServices.getAll().then((initialPersons) => {
@@ -16,12 +19,18 @@ const App = () => {
     });
   }, []);
 
-  const updatePersonNumber = (id: number, number: string, updatedPersonNumber: PersonType) => {
-    notesServices.update(id, {...updatedPersonNumber, number}).then((updatedPerson) => {
-      setPersons(
-        persons.map((person) => (person.id !== id ? person : updatedPerson))
-      );
-    });
+  const updatePersonNumber = (
+    id: number,
+    number: string,
+    updatedPersonNumber: PersonType
+  ) => {
+    notesServices
+      .update(id, { ...updatedPersonNumber, number })
+      .then((updatedPerson) => {
+        setPersons(
+          persons.map((person) => (person.id !== id ? person : updatedPerson))
+        );
+      });
   };
 
   const addPerson = (name: string, number: string) => {
@@ -34,11 +43,17 @@ const App = () => {
         const personToUpdate = persons.find((person) => person.name === name);
         if (personToUpdate) {
           updatePersonNumber(personToUpdate?.id, number, personToUpdate);
+          setResultMessage(`${personToUpdate.name}'s number has been updated`);
+          setType("success");
+          setTimeout(() => {
+            setResultMessage(null);
+            setType(null);
+          }, 5000);
         }
       }
-
       return;
     }
+
     const personObject = {
       name,
       number,
@@ -47,14 +62,34 @@ const App = () => {
     notesServices.create(personObject).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
       // setPersons([...persons, personObject]);
+
+      setResultMessage(`Added ${returnedPerson.name}`);
+      setType("success");
+      setTimeout(() => {
+        setResultMessage(null);
+        setType(null);
+      }, 5000);
     });
   };
 
   const deletePerson = (id: number) => {
     if (window.confirm("Do you really want to leave?")) {
-      notesServices.deletePerson(id).then(() => {
-        setPersons(persons.filter((person) => person.id !== id));
-      });
+      notesServices
+        .deletePerson(id)
+        .then(() => {
+          setPersons(persons.filter((person) => person.id !== id));
+        })
+        .catch(() => {
+          const person = persons.find((person) => person.id == id);
+          if (person) {
+            setResultMessage(`${person.name} has already been removed from server`);
+            setType("error");
+            setTimeout(() => {
+              setResultMessage(null);
+              setType(null);
+            }, 5000);
+          }
+        });
     }
   };
 
@@ -74,6 +109,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={resultMessage} type={type} />
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <h2>add new</h2>
       <AddForm addPerson={addPerson} />
