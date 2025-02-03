@@ -1,14 +1,13 @@
 import { AddFormProps } from "../types/AddFormTypes";
 import { Formik, Form, FormikHelpers, Field, ErrorMessage } from "formik";
 import { PersonFormType } from "../types/PersonType";
-import { useState } from "react";
 import { validationSchema } from "../utils/validationSchema";
 
 export const AddForm = ({ addPerson }: AddFormProps) => {
-  const [initialValues, setInitialValues] = useState({
+  const initialValues = {
     name: "",
     number: "",
-  });
+  };
   const handleSubmit = (
     values: PersonFormType,
     { resetForm }: FormikHelpers<PersonFormType>
@@ -26,11 +25,11 @@ export const AddForm = ({ addPerson }: AddFormProps) => {
         <Form>
           <div>
             name: <Field name="name" type="text" />
-            <ErrorMessage name="name" component="div" className="error"/>
+            <ErrorMessage name="name" component="div" className="error" />
           </div>
           <div>
             number: <Field name="number" type="text" />
-            <ErrorMessage name="number" component="div" className="error"/>
+            <ErrorMessage name="number" component="div" className="error" />
           </div>
           <div>
             <button type="submit">add</button>
