@@ -9,6 +9,7 @@ import { Notification } from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([] as PersonType[]);
+  const [allPersons, setAllPersons] = useState([] as PersonType[]);
   const [filter, setFilter] = useState("" as string);
   const [resultMessage, setResultMessage] = useState(null as string | null);
   const [type, setType] = useState(null as string | null);
@@ -16,6 +17,7 @@ const App = () => {
   useEffect(() => {
     notesServices.getAll().then((initialPersons) => {
       setPersons(initialPersons);
+      setAllPersons(initialPersons);
     });
   }, []);
 
@@ -30,6 +32,11 @@ const App = () => {
         setPersons(
           persons.map((person) => (person.id !== id ? person : updatedPerson))
         );
+      })
+      .catch((error) => {
+        setType("error");
+        setResultMessage(error.response.data.error);
+        console.log(error.response.data);
       });
   };
 
@@ -59,17 +66,28 @@ const App = () => {
       number,
     };
 
-    notesServices.create(personObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      // setPersons([...persons, personObject]);
+    notesServices
+      .create(personObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        // setPersons([...persons, personObject]);
 
-      setResultMessage(`Added ${returnedPerson.name}`);
-      setType("success");
-      setTimeout(() => {
-        setResultMessage(null);
-        setType(null);
-      }, 5000);
-    });
+        setResultMessage(`Added ${returnedPerson.name}`);
+        setType("success");
+        setTimeout(() => {
+          setResultMessage(null);
+          setType(null);
+        }, 5000);
+      })
+      .catch((error) => {
+        setType("error");
+        setResultMessage(error.response.data.error);
+        setTimeout(() => {
+          setResultMessage(null);
+          setType(null);
+        }, 5000);
+        console.log(error.response.data);
+      });
   };
 
   const deletePerson = (id: number) => {
@@ -82,7 +100,9 @@ const App = () => {
         .catch(() => {
           const person = persons.find((person) => person.id == id);
           if (person) {
-            setResultMessage(`${person.name} has already been removed from server`);
+            setResultMessage(
+              `${person.name} has already been removed from server`
+            );
             setType("error");
             setTimeout(() => {
               setResultMessage(null);
@@ -102,7 +122,7 @@ const App = () => {
         )
       );
     } else {
-      setPersons(persons);
+      setPersons(allPersons);
     }
   };
 
