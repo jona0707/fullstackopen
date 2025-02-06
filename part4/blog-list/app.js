@@ -1,6 +1,7 @@
 // Configuración
 const express = require('express');
 const app = express();
+require('express-async-errors');
 const cors = require('cors');
 // Controladores
 const blogsRouter = require('./controllers/blogController');
