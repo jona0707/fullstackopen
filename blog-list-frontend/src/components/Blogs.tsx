@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../services/blogsService";
-import { Blog, BlogProps } from "../types/blogs";
+import { Blog as BlogTypes, BlogProps } from "../types/blogs";
 import { User } from "../types/users";
 import { UserLog } from "./UserLog";
 import { CreateBlog } from "./CreateBlog";
 import { Notification } from "./Notification";
+import { Blog } from "./Blog";
+import { Togglable } from "./Togglable";
 
 export const Blogs = ({ user }: BlogProps) => {
-  const [blogs, setBlogs] = useState(null as Blog[] | null);
+  const [blogs, setBlogs] = useState(null as BlogTypes[] | null);
   const [message, setMessage] = useState("");
   const [type, setType] = useState("");
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const searchUser = async () => {
@@ -32,6 +35,22 @@ export const Blogs = ({ user }: BlogProps) => {
     }
   }, [message, type]);
 
+  const updateBlog = (updatedBlog: BlogTypes) => {
+    setBlogs(
+      (prevBlogs) =>
+        prevBlogs?.map((blog) =>
+          blog.id === updatedBlog.id ? updatedBlog : blog
+        ) ?? null
+    );
+  };
+
+  const deleteBlog = (id: string) => {
+    setBlogs(
+      (prevBlogs) => prevBlogs?.filter((blog) => blog.id !== id) ?? null
+    );
+  };
+  console.log(blogs);
+
   return (
     <>
       <h2>Blogs</h2>
@@ -40,15 +59,35 @@ export const Blogs = ({ user }: BlogProps) => {
 
       {blogs && (
         <>
-          <CreateBlog
-            prevBlogs={blogs}
-            setBlogs={setBlogs}
-            setType={setType}
-            setMessage={setMessage}
-          />
-          {blogs.map(({ title, id }: Blog) => (
-            <div key={id}>{title}</div>
-          ))}
+          <Togglable
+            buttonLabel="Create Blog"
+            visible={visible}
+            setVisible={setVisible}
+          >
+            <CreateBlog
+              prevBlogs={blogs}
+              setBlogs={setBlogs}
+              setType={setType}
+              setMessage={setMessage}
+              onSubmit={() => setVisible(false)}
+            />
+          </Togglable>
+          {blogs
+            .sort((a, b) => {
+              const likesA = a.likes ?? 0;
+              const likesB = b.likes ?? 0;
+              return likesB - likesA;
+            })
+            .map((blog: BlogTypes) => (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                setType={setType}
+                setMessage={setMessage}
+                updateBlogs={updateBlog}
+                deleteBlog={deleteBlog}
+              />
+            ))}
         </>
       )}
     </>

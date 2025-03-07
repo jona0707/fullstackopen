@@ -7,11 +7,13 @@ export const CreateBlog = ({
   setBlogs,
   setType,
   setMessage,
+  onSubmit,
 }: CreateBlogProps) => {
   const initialValues = {
     title: "",
     author: "",
     url: "",
+    likes: 0,
   };
 
   const handleOnSubmit = async (values: Blog) => {
@@ -25,6 +27,7 @@ export const CreateBlog = ({
         );
       if (response.title && !response.author)
         setMessage(`A new blog "${response.title}" added.`);
+      onSubmit();
     } catch (error) {
       setType("error");
       setMessage(`${error}`);
