@@ -49,22 +49,25 @@ export const Blog = ({
         padding: 5,
         marginBottom: 5,
       }}
+      className="blog"
     >
-      <div style={{ display: "flex", gap: 5 }}>
-        <div>{currentBlog.title}</div>
+      <div style={{ display: "flex", gap: 5 }} className="blog-header">
+        <div className="blog-title">{currentBlog.title}</div>
+        <div>
+          <strong>author:</strong> {currentBlog.author}
+        </div>
         <button onClick={handlToggle}>{isOppened ? "hide" : "view"}</button>
       </div>
       {isOppened && (
-        <div>
-          <div>
-            <strong>author:</strong> {currentBlog.author}
-          </div>
+        <div className="blog-details">
           <div>
             <strong>url:</strong> {currentBlog.url}
           </div>
           <div>
             <strong>likes:</strong> {currentBlog.likes}{" "}
-            <button onClick={handleLike}>like</button>
+            <button onClick={handleLike} className="likeButton">
+              like
+            </button>
           </div>
           <div>
             <button onClick={handleDelete}>remove</button>
